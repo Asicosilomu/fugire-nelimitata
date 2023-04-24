@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fugire #Nelimitată | Sponsorizat de DIGI.ro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style type="text/css">* { font-family: sans-serif; };</style>
+<style type="text/css">
+	.fl { display: flex; align-items: center; justify-content: center; } 
+	.tile { width: 50px; height: 50px; }
+</style>
+</head>
+<body>
+<center>
+<h1>Fugire <span style="color: darkblue">#Nelimitat</span>ă</h1>
+<i id="speedhud">Viteza dvs. este de:<br><p id="speedcount" style="font-size: 50px; margin: 0px;">0px/s</p></i>
+<br>
+<button onclick="this.disabled = true;window.runner();">A juca</button><!--<button onclick="window.randColors()">culori aleatori (bugy)</button>-->&nbsp;&nbsp;&nbsp<label for="impos">Mod imposibil</label><input type="checkbox" id="impos">
+<br><br>
+<div id="prt">
+</div>
+<br>
+<i>Controale pentru celular</i>
+<br><br>
+<button style="width: 100px; height: 100px;" onclick="document.body.dispatchEvent(new KeyboardEvent('keydown', {'code': 'ArrowLeft'}));">Stînga</button>
+<button style="width: 100px; height: 100px;" onclick="document.body.dispatchEvent(new KeyboardEvent('keydown', {'code': 'ArrowRight'}));">Dreapta</button>
+<br><br><br>
+<b>Sponsorizat de:</b>
+<br><br>
+<a href="https://digi.ro" target="_blank" rel="noreferrer noopener"><img src="https://www.digi.ro/static/theme-ui-frontend/bin/images/logo-digi-conectati-nelimitat.png" alt="DIGI.ro"></img></a>
+</center>
+<script type="text/javascript">
+window.runner = function() {
+var height = 10, width = 10, playerCol = 0; var impos = document.body.querySelector("#impos");
+if (impos.checked) { var min_interval = 50; var interval = 500; } else { var min_interval = 300; var interval = 1000; }; var worldChangeInterval = 20000; var dist = 0;
+function randColor() {
+	return "rgb("+Math.floor(Math.random()*256).toString()+", "+Math.floor(Math.random()*256).toString()+", "+Math.floor(Math.random()*256).toString()+")";
+}
+// Coulori
+var background = randColor();
+var obstacle = randColor();
+var player = randColor();
+window.randColors = function() {
+	background = randColor();
+	obstacle = randColor();
+	player = randColor();
+};
+if (!impos.checked) { setInterval(randColors, worldChangeInterval); } else {
+	background = "black";
+	obstacle = "red";
+	player = "yellow";
+}
+// Finalul coulori
+var prt = document.body.querySelector("#prt");
+prt.innerHTML = "";
+var els = []; var stop = false;
+function lose() { prt.innerHTML = "<h1><marquee>ai mers " + (dist * 50).toString() + "px (" + dist.toString() + " blocuri). esti prost de bubui</marquee></h1>"; stop = true; };
+for (var i = 0; i < height; i++)
+{
+	var ln = document.createElement("div");
+	var a = [];
+	ln.className = "fl";
+	for (var i2 = 0; i2 < width; i2++) {
+		var t = document.createElement("div");
+		t.className = "tile";
+		t.style.backgroundColor = background;
+		a.push(t);
+		ln.appendChild(t);
+	}
+	els.push(a);
+	prt.appendChild(ln);
+}
+if (impos.checked) { var c = .3; } else { var c = .2; };
+for (var i = 0; i < height - 1; i++) {
+	for (var i2 = 0; i2 < width; i2++) {
+	
+		var r = Math.random();
+		if (r < c) els[i][i2].style.backgroundColor = obstacle;
+	}
+}
+var sp = document.body.querySelector("#speedcount");
+function setInter() {
+var inte = setInterval(function() {
+	if (!stop) {
+	var o = els[height - 1][playerCol];
+	if (o.style.backgroundColor == obstacle) { lose(); }
+	for (var i = height - 2; i >= 0; i--) {
+		for (var i2 = 0; i2 < width; i2++) {
+			els[i + 1][i2].style.backgroundColor = els[i][i2].style.backgroundColor;
+		}
+	}
+	for (var i = 0; i < width; i++) {
+		var r = Math.random();
+		if (r < .15) { els[0][i].style.backgroundColor = obstacle; } else { els[0][i].style.backgroundColor = background; };
+	}
+	var o = els[height - 1][playerCol];
+	if (o.style.backgroundColor == obstacle) { lose(); } else { o.style.backgroundColor = player; };
+	dist++;
+	if (interval > min_interval) {
+	clearInterval(inte);
+	interval -= 10;
+	sp.innerText = Math.floor((1000 / interval) * 50).toString() + "px/s";
+	if (!stop) setInter();
+	console.info(interval);
+	};
+	}
+}, interval)
+};
+setInter();
+
+document.body.addEventListener("keydown", function (e) {
+	if (e.code == "ArrowLeft" || e.code == "ArrowRight") {
+		var o = els[height - 1][playerCol];
+		o.style.backgroundColor = background;
+		if (e.code == "ArrowLeft" && playerCol > 0) playerCol--;
+		if (e.code == "ArrowRight" && playerCol < width - 1) playerCol++;
+		o = els[height - 1][playerCol];
+		if (o.style.backgroundColor == obstacle) { lose(); } else { o.style.backgroundColor = player; };
+	}
+})
+};
+</script>
+</body>
+</html>
